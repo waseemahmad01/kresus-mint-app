@@ -37,7 +37,7 @@ export default function verifyWithWorldIdToMintNFT() {
     console.log(
       'Minted NFT Hash: https://sepolia.etherscan.io/tx/' + mintNFTResult
     );
-    setMintedHash(mintNFTResult);
+    setMintedHash(mintNFTResult as string);
     setOpenModal(true);
     setShowConfetti(true);
     // window.alert(
