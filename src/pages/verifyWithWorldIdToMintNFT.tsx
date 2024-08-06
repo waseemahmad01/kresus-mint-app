@@ -1,22 +1,30 @@
+// @ts-ignore
 import { VerificationLevel, IDKitWidget } from '@worldcoin/idkit';
+// @ts-ignore
 import type { ISuccessResult } from '@worldcoin/idkit';
 import type { VerifyReply } from './api/verify';
 import nftIg from './../../public/nft.jpg';
 import Image from 'next/image';
 import React, { SetStateAction, useEffect } from 'react';
+// @ts-ignore
 import { Card, CardHeader, CardFooter, Divider } from '@nextui-org/react';
 import mintNFT from '../smartContractInteraction/mintNFT';
-import { useState } from 'react';
+import { useState, useId } from 'react';
+// @ts-ignore
 import ReactConfetti from 'react-confetti';
+import { File } from 'buffer';
 
 export default function verifyWithWorldIdToMintNFT() {
   let [NFTHashLink, setNFTHashLink] = useState('not found');
   let [NFTHashText, setNFTHashText] = useState('not found');
   let [hashColor, setTextColor] = useState('red');
 
+  const [image, setImage] = useState<File | null>(null);
+
   const [mintedHash, setMintedHash] = useState('');
   const [openModal, setOpenModal] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const picker = useId();
 
   function toggle(link: SetStateAction<string>) {
     setNFTHashLink(link);
@@ -49,6 +57,14 @@ export default function verifyWithWorldIdToMintNFT() {
 
   const handleCloseModal = () => {
     setOpenModal(false);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.currentTarget.files;
+    if (files?.length) {
+      // @ts-ignore
+      setImage(files[0]);
+    }
   };
 
   const handleProof = async (result: ISuccessResult) => {
@@ -99,7 +115,31 @@ export default function verifyWithWorldIdToMintNFT() {
           style={{ width: 300, marginTop: 20, borderRadius: 10 }}
         >
           <CardHeader>
-            <Image src={nftIg} className='rounded-md' alt='NFT' />
+            <div className='w-full aspect-square bg-gray-200'>
+              <label htmlFor={picker}>
+                <div className='relative w-full h-full rounded-md overflow-hidden flex items-center justify-center flex-col cursor-pointer gap-4'>
+                  <Image src='/upload.png' width={50} height={50} alt='' />
+                  <p className='text-base'>Click to Upload image</p>
+                  {image && (
+                    <Image
+                      src={URL.createObjectURL(image)}
+                      className='aspect-square w-full rounded'
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      alt=''
+                    />
+                  )}
+                </div>
+              </label>
+              <input
+                type='file'
+                name=''
+                className='hidden'
+                id={picker}
+                onChange={handleImageChange}
+              />
+            </div>
+            {/* <Image src={nftIg} className='rounded-md' alt='NFT' /> */}
           </CardHeader>
           <Divider />
           <CardFooter style={{ margin: 20, color: '#030a74' }}>
@@ -169,6 +209,7 @@ export default function verifyWithWorldIdToMintNFT() {
           handleVerify={handleProof}
           verification_level={VerificationLevel.Device} // Change this to VerificationLevel.Device to accept Orb- and Device-verified users
         >
+          {/* @ts-ignore */}
           {({ open }) => (
             <button
               onClick={open}
@@ -226,7 +267,7 @@ export default function verifyWithWorldIdToMintNFT() {
           {showConfetti && (
             <ReactConfetti
               className='z-20'
-              onConfettiComplete={confetti => {
+              onConfettiComplete={(confetti: any) => {
                 confetti?.stop();
                 setShowConfetti(false);
               }}
